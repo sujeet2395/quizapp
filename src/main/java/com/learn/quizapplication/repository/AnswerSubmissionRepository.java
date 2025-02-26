@@ -12,4 +12,6 @@ import com.learn.quizapplication.entity.User;
 @Repository
 public interface AnswerSubmissionRepository extends JpaRepository<AnswerSubmission, Long> {
     List<AnswerSubmission> findByUserAndQuiz(User user, Quiz quiz);
+
+	boolean existsByUserAndQuiz(User user, Quiz quiz);
 }

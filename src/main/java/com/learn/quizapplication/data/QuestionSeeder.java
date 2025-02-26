@@ -27,7 +27,7 @@ public class QuestionSeeder implements CommandLineRunner {
         if (questionRepository.count() == 0) {
 			List<Question> questions = new ArrayList<>();
 			int count = 0;
-			questions.add(new Question("What is the chemical symbol for water?"));
+			questions.add(new Question("What is the capital of France?"));
 			questions.get(count).setOptions(Arrays.asList(new AnswerOption("Berlin", questions.get(count)),
 					new AnswerOption("Madrid", questions.get(count)), new AnswerOption("Paris", questions.get(count)),
 					new AnswerOption("Rome", questions.get(count))), 2);

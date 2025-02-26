@@ -5,7 +5,6 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.ManyToOne;
-import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -30,7 +29,7 @@ public class AnswerSubmission {
     @ManyToOne
     private Question question;
     
-    @OneToOne
+    @ManyToOne
     private AnswerOption selectedAnswer;
 
 	public AnswerSubmission(User user, Quiz quiz, Question question, AnswerOption selectedAnswer) {

@@ -1,11 +1,13 @@
 package com.learn.quizapplication.service;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.learn.quizapplication.dto.AnswerSubmissionRequest;
+import com.learn.quizapplication.entity.AnswerOption;
 import com.learn.quizapplication.entity.AnswerSubmission;
 import com.learn.quizapplication.entity.Question;
 import com.learn.quizapplication.entity.Quiz;
@@ -34,16 +36,32 @@ public class SubmissionService {
     private AnswerSubmissionRepository submissionRepository;
     
     public void submitAnswers(Long userId, Long quizId, List<AnswerSubmissionRequest> answers) {
+    	if(submissionRepository.existsByUserAndQuiz(new User(userId), new Quiz(quizId))) {
+    		throw new RuntimeException("User already submitted the answer(s) of given quiz.");
+    	}
+    	if(answers.isEmpty()) {
+    		throw new RuntimeException("Answer Submission can not be empty.");
+    	}
+    	
         User user = userRepository.findById(userId).orElseThrow(() -> new RuntimeException("User not found"));
         Quiz quiz = quizRepository.findById(quizId).orElseThrow(() -> new RuntimeException("Quiz not found"));
 
+        if(!answers.stream().allMatch(a -> quiz.getQuestions().stream().anyMatch(qq -> qq.getId().equals(a.getQuestionId())))){
+        	throw new RuntimeException("Question(s) is/are not matched.");
+        }
+        
+        List<AnswerSubmission> answerSubmissions = new ArrayList<>();
         for (AnswerSubmissionRequest answerRequest : answers) {
             Question question = questionRepository.findById(answerRequest.getQuestionId())
                     .orElseThrow(() -> new RuntimeException("Question not found"));
-
-            AnswerSubmission submission = new AnswerSubmission(user, quiz, question, answerOptionRepository.findById(answerRequest.getSelectedAnswer()).orElseThrow(() -> new RuntimeException("Answer Option not found")));
-            submissionRepository.save(submission);
+            AnswerOption answered = answerOptionRepository.findById(answerRequest.getSelectedAnswer()).orElseThrow(() -> new RuntimeException("Answer Option not found"));
+            if(question.getOptions().stream().anyMatch(a -> a.getId().equals(answered.getId()))) {
+            	throw new RuntimeException("Given answer is not from options.");
+            }
+            answerSubmissions.add(new AnswerSubmission(user, quiz, question, answered));
         }
+        if(!answerSubmissions.isEmpty())
+        	submissionRepository.saveAll(answerSubmissions);
     }
 
     public int calculateResult(Long userId, Long quizId) {
