@@ -55,7 +55,7 @@ public class SubmissionService {
             Question question = questionRepository.findById(answerRequest.getQuestionId())
                     .orElseThrow(() -> new RuntimeException("Question not found"));
             AnswerOption answered = answerOptionRepository.findById(answerRequest.getSelectedAnswer()).orElseThrow(() -> new RuntimeException("Answer Option not found"));
-            if(question.getOptions().stream().anyMatch(a -> a.getId().equals(answered.getId()))) {
+            if(question.getOptions().stream().noneMatch(a -> a.getId().equals(answered.getId()))) {
             	throw new RuntimeException("Given answer is not from options.");
             }
             answerSubmissions.add(new AnswerSubmission(user, quiz, question, answered));
